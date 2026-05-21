@@ -1,20 +1,28 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const port = 3000;
 const sequelize = require("./config/db");
 
 const User = require("./models/User");
 const Task = require("./models/Task");
+const authRoutes = require("./routes/authRoutes");
+const TaskRoutes = require("./routes/taskRoutes");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 5000;
+app.use("/api/auth", authRoutes);
+app.use("/api/tasks", TaskRoutes);
+app.get("/", (req, res) => {
+  res.send("Welcome to the Todo API");
+});
+
+const PORT = process.env.PORT || 3000;
 
 // Sync database and start server
 sequelize
-  .sync()
+  .sync({ alter: true })
   .then(() => {
     console.log("Database synced");
     app.listen(PORT, () => {
@@ -24,23 +32,3 @@ sequelize
   .catch((err) => {
     console.error("Error syncing database:", err);
   });
-
-// // Routes
-// app.get('/api/tasks', async (req, res) => {
-//     try {
-//         const tasks = await Task.findAll({ include: User });
-//         res.json(tasks);
-//     } catch (err) {
-//         res.status(500).json({ error: 'Failed to fetch tasks' });
-//     }
-// });
-
-// app.post('/api/tasks', async (req, res) => {
-//     try {
-//         const { title, description, userId } = req.body;
-//         const task = await Task.create({ title, description, userId });
-//         res.json(task);
-//     } catch (err) {
-//         res.status(500).json({ error: 'Failed to create task' });
-//     }
-// });
