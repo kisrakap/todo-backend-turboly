@@ -17,18 +17,13 @@ if (process.env.DATABASE_URL) {
     },
   });
 }
-// 2. Kondisi jika aplikasi berjalan di Laptop Anda (menggunakan database localhost)
+// 2. Kondisi jika aplikasi berjalan di development lokal (menggunakan SQLite)
 else {
-  sequelize = new Sequelize(
-    process.env.DB_NAME,
-    process.env.DB_USER,
-    process.env.DB_PASSWORD,
-    {
-      host: process.env.DB_HOST,
-      dialect: "postgres",
-      logging: false,
-    },
-  );
+  sequelize = new Sequelize({
+    dialect: "sqlite",
+    storage: "./todo.db", // File database lokal
+    logging: false,
+  });
 }
 
 module.exports = sequelize;
