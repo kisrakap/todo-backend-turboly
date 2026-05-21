@@ -1,0 +1,14 @@
+.env
+.env.local
+.git
+.gitignore
+node_modules
+npm-debug.log
+*.log
+.DS_Store
+.vscode
+.idea
+*.swp
+*.swo
+DEPLOY_VERCEL.md
+README.md
