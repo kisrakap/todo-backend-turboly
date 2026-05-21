@@ -1,13 +1,34 @@
-const { Sequelize } = require('sequelize'); 
-require('dotenv').config();
+const { Sequelize } = require("sequelize");
+require("dotenv").config();
 
-const sequelize = new Sequelize(
-    process.env.DB_NAME, 
-    process.env.DB_USER, 
-    process.env.DB_PASSWORD, {
-    host: process.env.DB_HOST,
-    dialect: 'postgres',    
-    logging: false
-});
+let sequelize;
+
+// 1. Kondisi jika aplikasi berjalan di Vercel (mendeteksi DATABASE_URL)
+if (process.env.DATABASE_URL) {
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: "postgres",
+    protocol: "postgres",
+    logging: false,
+    dialectOptions: {
+      ssl: {
+        require: true, // Wajib untuk database online gratisan
+        rejectUnauthorized: false, // Mencegah error keamanan pada database cloud
+      },
+    },
+  });
+}
+// 2. Kondisi jika aplikasi berjalan di Laptop Anda (menggunakan database localhost)
+else {
+  sequelize = new Sequelize(
+    process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PASSWORD,
+    {
+      host: process.env.DB_HOST,
+      dialect: "postgres",
+      logging: false,
+    },
+  );
+}
 
 module.exports = sequelize;

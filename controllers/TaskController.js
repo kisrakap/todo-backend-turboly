@@ -7,19 +7,26 @@ exports.createTask = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    const normalizedPriority = priority.toString().toLowerCase();
+    if (!["low", "medium", "high"].includes(normalizedPriority)) {
+      return res.status(400).json({ error: "Invalid priority value" });
+    }
+
     const task = await Task.create({
       title,
       description,
       dueDate,
-      priority,
+      priority: normalizedPriority,
       userId,
     });
 
-    res.status(201).json({ task: task, message: "Task created successfully" });
+    res.status(201).json({ task, message: "Task created successfully" });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Gagal membuat task", error: "Failed to create task" });
+    console.error(err);
+    res.status(500).json({
+      message: "Gagal membuat task",
+      error: err.message || "Failed to create task",
+    });
   }
 };
 
@@ -33,8 +40,7 @@ exports.getTasks = async (req, res) => {
       where: { userId },
       order: [["createdAt", "DESC"]],
     });
-    res.json(tasks);
-    res.status(200).json({ message: "Tasks fetched successfully" });
+    res.status(200).json(tasks);
   } catch (err) {
     res.status(500).json({
       message: "Gagal mengambil task",

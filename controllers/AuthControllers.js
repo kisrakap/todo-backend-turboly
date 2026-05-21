@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { Op } = require("sequelize");
 require("dotenv").config();
 
 exports.register = async (req, res) => {
@@ -33,9 +34,13 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, username } = req.body;
   try {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ 
+      where: { 
+        [Op.or]: [{ email }, { username }] 
+      } 
+    });
     if (!user) {
       return res.status(400).json({ message: "User Tidak Ditemukan" });
     }
