@@ -10,7 +10,20 @@ const authRoutes = require("./routes/authRoutes");
 const TaskRoutes = require("./routes/taskRoutes");
 
 const app = express();
-app.use(cors());
+
+// CORS Configuration
+const allowedOrigins = [
+  "http://localhost:3001",
+  "http://localhost:3000",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  }),
+);
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
@@ -27,9 +40,11 @@ sequelize
   .then(() => {
     console.log("Database synced");
     app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT} yeeee≈`);
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
     console.error("Error syncing database:", err);
   });
+
+module.exports = app;
