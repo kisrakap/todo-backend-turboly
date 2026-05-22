@@ -21,13 +21,11 @@ exports.register = async (req, res) => {
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
-    res
-      .status(201)
-      .json({
-        token,
-        message: "User registered successfully",
-        userId: user.id,
-      });
+    res.status(201).json({
+      token,
+      message: "User registered successfully",
+      userId: user.id,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -36,11 +34,16 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   const { email, password, username } = req.body;
   try {
-    const user = await User.findOne({ 
-      where: { 
-        [Op.or]: [{ email }, { username }] 
-      } 
-    });
+    // Build dynamic search conditions to avoid passing `undefined` to the DB
+    const conditions = [];
+    if (email) conditions.push({ email });
+    if (username) conditions.push({ username });
+
+    if (conditions.length === 0) {
+      return res.status(400).json({ message: "Email or username is required" });
+    }
+
+    const user = await User.findOne({ where: { [Op.or]: conditions } });
     if (!user) {
       return res.status(400).json({ message: "User Tidak Ditemukan" });
     }
